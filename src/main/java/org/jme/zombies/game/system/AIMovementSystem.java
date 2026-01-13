@@ -5,21 +5,31 @@ import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
 import com.jme3.asset.AssetManager;
 import com.jme3.math.Vector3f;
-import com.jme3.recast4j.ai.*;
+import com.jme3.recast4j.ai.NavMeshAgent;
+import com.jme3.recast4j.ai.NavMeshAgentDebug;
+import com.jme3.recast4j.ai.NavMeshPath;
+import com.jme3.recast4j.ai.NavMeshPathStatus;
+import com.jme3.recast4j.ai.NavMeshQueryFilter;
 import com.simsilica.es.Entity;
 import com.simsilica.es.EntityId;
 import com.simsilica.es.EntitySet;
+import java.util.concurrent.Executors;
+import javax.annotation.Nonnull;
 import org.jme.zombies.game.component.AIComponent;
 import org.jme.zombies.game.component.ModelComponent;
 import org.jme.zombies.game.component.NameComponent;
 import org.jme.zombies.game.component.PositionComponent;
 import org.jme.zombies.game.entity.EntityFactory;
-import org.recast4j.detour.*;
-
-import javax.annotation.Nonnull;
-import java.util.concurrent.Executors;
-
-import static com.jme3.recast4j.recast.JmeAreaMods.*;
+import org.recast4j.detour.DefaultQueryFilter;
+import org.recast4j.detour.FindRandomPointResult;
+import org.recast4j.detour.NavMesh;
+import org.recast4j.detour.NavMeshQuery;
+import org.recast4j.detour.Result;
+import static com.jme3.recast4j.recast.JmeAreaMods.POLYFLAGS_DISABLED;
+import static com.jme3.recast4j.recast.JmeAreaMods.POLYFLAGS_DOOR;
+import static com.jme3.recast4j.recast.JmeAreaMods.POLYFLAGS_JUMP;
+import static com.jme3.recast4j.recast.JmeAreaMods.POLYFLAGS_SWIM;
+import static com.jme3.recast4j.recast.JmeAreaMods.POLYFLAGS_WALK;
 import static org.recast4j.detour.NavMeshQuery.FRand;
 
 public class AIMovementSystem extends AbstractAppState {
@@ -28,11 +38,11 @@ public class AIMovementSystem extends AbstractAppState {
      * AI Entities.
      */
     private EntitySet entities;
-    private NavMesh navMeshTerrain;
     private Entity player;
     private AssetManager assetManager;
 
-    private NavMeshQuery navMeshQuery;
+    private final NavMeshQuery navMeshQuery;
+    private final NavMesh navMeshTerrain;
 
     public AIMovementSystem(NavMesh navMeshTerrain) {
         this.navMeshTerrain = navMeshTerrain;
@@ -72,8 +82,6 @@ public class AIMovementSystem extends AbstractAppState {
 
             PositionComponent playerPosition = player.get(PositionComponent.class);
 
-//            System.out.println("Player position: " + playerPosition.position);
-
             if (aiComponent.agent == null) {
                 aiComponent.agent = new NavMeshAgent(navMeshTerrain);
 
@@ -84,7 +92,6 @@ public class AIMovementSystem extends AbstractAppState {
 
                 NavMeshQueryFilter filter = getNavMeshQueryFilter();
 
-
                 aiComponent.agent.setQueryFilter(filter);
             }
 
@@ -92,19 +99,13 @@ public class AIMovementSystem extends AbstractAppState {
 
             Vector3f targetPosition = playerPosition.position;
             aiComponent.agent.calculatePath(targetPosition, path);
-//
-//            System.out.println(path.getStatus());
-//
-//            System.out.println("Path from " + modelComponent.geometry.getWorldTranslation() + " to " + playerPosition.position);
 
             if (path.getStatus() == NavMeshPathStatus.PathComplete) {
                 aiComponent.agent.setPath(path);
 
                 System.out.println(path.getCorners());
 
-//                System.out.println("Нашел путь: " + aiComponent.agent.);
             }
-
         });
     }
 

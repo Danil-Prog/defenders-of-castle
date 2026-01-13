@@ -24,8 +24,15 @@ import org.recast4j.detour.NavMesh;
 
 public class Jmezombies extends SimpleApplication {
 
+    private final BulletAppState bulletAppState;
+
+    public Jmezombies(BulletAppState bulletAppState) {
+        this.bulletAppState = bulletAppState;
+    }
+
     public static void main(String[] args) {
-        Jmezombies app = new Jmezombies();
+        var bulletAppState = new BulletAppState();
+        Jmezombies app = new Jmezombies(bulletAppState);
 
         AppSettings settings = new AppSettings(true);
         settings.setTitle("Jmezombies");
@@ -37,7 +44,6 @@ public class Jmezombies extends SimpleApplication {
         app.start();
     }
 
-    private BulletAppState bulletAppState = new BulletAppState();
 
     private Material stoneMaterial;
 
@@ -53,7 +59,6 @@ public class Jmezombies extends SimpleApplication {
         EntityFactory.rootNode = rootNode;
         EntityFactory.assetManager = assetManager;
 
-        bulletAppState = new BulletAppState();
         stateManager.attach(bulletAppState);
 
         GameContext gameContext = new GameContext(this);

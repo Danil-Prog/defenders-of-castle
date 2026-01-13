@@ -2,28 +2,27 @@ package org.jme.zombies.game.entity;
 
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.collision.shapes.BoxCollisionShape;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.BetterCharacterControl;
 import com.jme3.bullet.control.CharacterControl;
-import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.material.Material;
 import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.recast4j.ai.NavMeshAgent;
-import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.shape.Box;
-import com.simsilica.es.Entity;
 import com.simsilica.es.EntityData;
 import com.simsilica.es.EntityId;
 import com.simsilica.es.base.DefaultEntityData;
-import org.jme.zombies.game.component.*;
-import org.jme.zombies.game.terrain.TerrainFactory;
-
 import java.util.Random;
-
+import org.jme.zombies.game.component.AIComponent;
+import org.jme.zombies.game.component.CharacterControlComponent;
+import org.jme.zombies.game.component.ModelComponent;
+import org.jme.zombies.game.component.MoveComponent;
+import org.jme.zombies.game.component.NameComponent;
+import org.jme.zombies.game.component.PositionComponent;
+import org.jme.zombies.game.component.VelocityComponent;
+import org.jme.zombies.game.terrain.TerrainFactory;
 import static com.jme3.renderer.queue.RenderQueue.ShadowMode.CastAndReceive;
 
 public class EntityFactory {
@@ -83,10 +82,9 @@ public class EntityFactory {
 
         modelComponent.box = new Box(0f, 0f, 0f);
         modelComponent.geometry = new Geometry("EnemyBox", modelComponent.box);
-        modelComponent.betterCharacterControl = new BetterCharacterControl(0.3f, 1.6f, 20f);
+        modelComponent.betterCharacterControl = new BetterCharacterControl(0.1f, 1.6f, 10f);
 
         modelComponent.geometry.setLocalTranslation(new Vector3f(x, 0.1f, z));
-        modelComponent.geometry.setShadowMode(CastAndReceive);
 
         Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
         mat.setColor("Color", ColorRGBA.Red);
@@ -94,9 +92,9 @@ public class EntityFactory {
         modelComponent.geometry.setMaterial(mat);
         modelComponent.geometry.addControl(modelComponent.betterCharacterControl);
 
-        rootNode.attachChild(modelComponent.geometry);
+        bulletAppState.getPhysicsSpace().add(modelComponent.geometry);
 
-        bulletAppState.getPhysicsSpace().add(modelComponent.betterCharacterControl);
+        rootNode.attachChild(modelComponent.geometry);
 
         AIComponent aiComponent = new AIComponent();
 
