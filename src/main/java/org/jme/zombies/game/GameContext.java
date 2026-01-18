@@ -13,11 +13,13 @@ public class GameContext {
     }
 
     public void initialize() {
+        terrainFactory.buildTerrainEnvironment();
+
+        EntityFactory.worldNode = terrainFactory.getWorldNode();
+        EntityFactory.navMeshTerrain = terrainFactory.getNavMeshTerrain();
 
         EntityFactory.createPlayer();
         EntityFactory.createEnemy(0f, 0f);
-
-        terrainFactory.buildTerrainEnvironment();
     }
 
     public TerrainFactory getTerrainFactory() {

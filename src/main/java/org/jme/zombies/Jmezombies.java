@@ -16,10 +16,10 @@ import com.jme3.system.AppSettings;
 import com.jme3.texture.Texture;
 import org.jme.zombies.game.GameContext;
 import org.jme.zombies.game.entity.EntityFactory;
+import org.jme.zombies.game.listeners.BallCollisionListener;
 import org.jme.zombies.game.system.AIMovementSystem;
 import org.jme.zombies.game.system.InputListenerSystem;
 import org.jme.zombies.game.system.PlayerMovementSystem;
-import org.jme.zombies.game.system.RenderSystem;
 import org.recast4j.detour.NavMesh;
 
 public class Jmezombies extends SimpleApplication {
@@ -43,7 +43,6 @@ public class Jmezombies extends SimpleApplication {
 
         app.start();
     }
-
 
     private Material stoneMaterial;
 
@@ -73,17 +72,16 @@ public class Jmezombies extends SimpleApplication {
 
         NavMesh navMesh = gameContext.getTerrainFactory().getNavMeshTerrain();
 
-        RenderSystem renderSystem = new RenderSystem();
         AIMovementSystem aiMovementSystem = new AIMovementSystem(navMesh);
         InputListenerSystem inputListenerSystem = new InputListenerSystem();
         PlayerMovementSystem playerMovementSystem = new PlayerMovementSystem();
 
-        stateManager.attach(renderSystem);
         stateManager.attach(aiMovementSystem);
         stateManager.attach(inputListenerSystem);
         stateManager.attach(playerMovementSystem);
 
-        bulletAppState.setDebugEnabled(true);
+        bulletAppState.setDebugEnabled(false);
+        bulletAppState.getPhysicsSpace().addCollisionListener(new BallCollisionListener(this));
     }
 
     private void initInputs() {

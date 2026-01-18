@@ -1,109 +1,109 @@
 package org.jme.zombies.game.entity;
 
+import com.jme3.anim.util.AnimMigrationUtils;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.BetterCharacterControl;
 import com.jme3.bullet.control.CharacterControl;
-import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
 import com.jme3.math.Vector3f;
-import com.jme3.scene.Geometry;
+import com.jme3.recast4j.ai.NavMeshAgent;
+import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.scene.Node;
-import com.jme3.scene.shape.Box;
+import com.jme3.scene.Spatial;
 import com.simsilica.es.EntityData;
 import com.simsilica.es.EntityId;
 import com.simsilica.es.base.DefaultEntityData;
-import java.util.Random;
 import org.jme.zombies.game.component.AIComponent;
-import org.jme.zombies.game.component.CharacterControlComponent;
-import org.jme.zombies.game.component.ModelComponent;
 import org.jme.zombies.game.component.MoveComponent;
-import org.jme.zombies.game.component.NameComponent;
+import org.jme.zombies.game.component.NodeComponent;
+import org.jme.zombies.game.component.PlayerComponent;
 import org.jme.zombies.game.component.PositionComponent;
 import org.jme.zombies.game.component.VelocityComponent;
-import org.jme.zombies.game.terrain.TerrainFactory;
-import static com.jme3.renderer.queue.RenderQueue.ShadowMode.CastAndReceive;
+import org.jme.zombies.game.controls.AgentAnimationControl;
+import org.jme.zombies.game.controls.AnimatorControl;
+import org.recast4j.detour.NavMesh;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EntityFactory {
 
     public static final EntityData entityData = new DefaultEntityData();
 
     public static Node rootNode;
+    public static Node worldNode;
     public static AssetManager assetManager;
     public static BulletAppState bulletAppState;
-    public static TerrainFactory terrainFactory;
+    public static NavMesh navMeshTerrain;
+    public static List<EntityId> enemies = new ArrayList<>();
 
     private static EntityId playerEntityId;
+
+    private static int index = 0;
 
     public static void createPlayer() {
         playerEntityId = entityData.createEntity();
 
-        ModelComponent modelComponent = new ModelComponent();
+        NodeComponent nodeComponent = new NodeComponent();
+        nodeComponent.entity = new Node("Player");
 
-        PositionComponent positionComponent = new PositionComponent();
-        positionComponent.position = new Vector3f(0, 0, 0);
+        var player = nodeComponent.entity;
 
-        VelocityComponent velocityComponent = new VelocityComponent();
+        var shape = new CapsuleCollisionShape(1.5f, 2f, 1);
+        var control = new CharacterControl(shape, 0.01f);
 
-        MoveComponent moveComponent = new MoveComponent();
+        control.setJumpSpeed(20);
+        control.setFallSpeed(30);
+        control.setGravity(50);
 
-        CharacterControlComponent characterComponent = new CharacterControlComponent();
+        player.addControl(control);
 
-        characterComponent.shape = new CapsuleCollisionShape(1.5f, 2f, 1);
-        characterComponent.control = new CharacterControl(characterComponent.shape, 0.01f);
+        worldNode.attachChild(player);
 
-        Vector3f location = new Vector3f(-20.5f, 4f, 8f);
-
-        characterComponent.control.setPhysicsLocation(location);
-        characterComponent.control.setJumpSpeed(20);
-        characterComponent.control.setFallSpeed(30);
-        characterComponent.control.setGravity(50);
-
-        bulletAppState.getPhysicsSpace().add(characterComponent.control);
+        bulletAppState.getPhysicsSpace().add(player);
 
         entityData.setComponents(
                 playerEntityId,
-                modelComponent,
-                positionComponent,
-                velocityComponent,
-                characterComponent,
-                moveComponent
+                nodeComponent,
+                new PlayerComponent(),
+                new MoveComponent(),
+                new VelocityComponent(),
+                new PositionComponent()
         );
     }
 
     public static void createEnemy(float x, float z) {
         EntityId id = entityData.createEntity();
+        Spatial model = assetManager.loadModel("Models/Jaime/Jaime.j3o");
 
-        NameComponent nameComponent = new NameComponent();
-        nameComponent.name = "Enemy_" + new Random().nextInt(1, 99);
+        NodeComponent nodeComponent = new NodeComponent();
+        nodeComponent.entity = (Node) AnimMigrationUtils.migrate(model);
 
-        ModelComponent modelComponent = new ModelComponent();
+        var npc = nodeComponent.entity;
+        npc.scale(2f);
+        npc.setName("Enemy_" + index++);
+        npc.setLocalTranslation(new Vector3f(x, 0f, z));
 
-        modelComponent.box = new Box(0f, 0f, 0f);
-        modelComponent.geometry = new Geometry("EnemyBox", modelComponent.box);
-        modelComponent.betterCharacterControl = new BetterCharacterControl(0.1f, 1.6f, 10f);
+        npc.addControl(new BetterCharacterControl(0.5f, 3f, 10f));
+        npc.addControl(new NavMeshAgent(navMeshTerrain));
+        npc.addControl(new AnimatorControl());
+        npc.addControl(new AgentAnimationControl());
 
-        modelComponent.geometry.setLocalTranslation(new Vector3f(x, 0.1f, z));
+        npc.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
 
-        Material mat = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        mat.setColor("Color", ColorRGBA.Red);
-
-        modelComponent.geometry.setMaterial(mat);
-        modelComponent.geometry.addControl(modelComponent.betterCharacterControl);
-
-        bulletAppState.getPhysicsSpace().add(modelComponent.geometry);
-
-        rootNode.attachChild(modelComponent.geometry);
+        bulletAppState.getPhysicsSpace().add(npc);
+        worldNode.attachChild(npc);
 
         AIComponent aiComponent = new AIComponent();
 
         entityData.setComponents(
                 id,
-                nameComponent,
                 aiComponent,
-                modelComponent
+                nodeComponent
         );
+
+        enemies.add(id);
     }
 
     public static EntityId getPlayerEntityId() {

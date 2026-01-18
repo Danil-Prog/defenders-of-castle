@@ -3,14 +3,15 @@ package org.jme.zombies.game.system;
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
+import com.jme3.bullet.control.CharacterControl;
 import com.jme3.input.InputManager;
 import com.jme3.input.KeyInput;
 import com.jme3.input.controls.ActionListener;
 import com.jme3.input.controls.KeyTrigger;
 import com.simsilica.es.Entity;
 import com.simsilica.es.EntityId;
-import org.jme.zombies.game.component.CharacterControlComponent;
 import org.jme.zombies.game.component.MoveComponent;
+import org.jme.zombies.game.component.NodeComponent;
 import org.jme.zombies.game.constants.Keyboard;
 import org.jme.zombies.game.entity.EntityFactory;
 
@@ -18,9 +19,12 @@ public class InputListenerSystem extends AbstractAppState implements ActionListe
 
     private InputManager inputManager;
     private MoveComponent moveComponent;
-    private CharacterControlComponent characterComponent;
+    private NodeComponent nodeComponent;
+
+    private CharacterControl control;
 
     @Override
+
     public void initialize(AppStateManager stateManager, Application app) {
         EntityId playerId = EntityFactory.getPlayerEntityId();
 
@@ -28,11 +32,13 @@ public class InputListenerSystem extends AbstractAppState implements ActionListe
         Entity entity = EntityFactory.entityData.getEntity(
                 playerId,
                 MoveComponent.class,
-                CharacterControlComponent.class
+                NodeComponent.class
         );
 
         moveComponent = entity.get(MoveComponent.class);
-        characterComponent = entity.get(CharacterControlComponent.class);
+        nodeComponent = entity.get(NodeComponent.class);
+
+        control = nodeComponent.entity.getControl(CharacterControl.class);
 
         mappingKeyboard();
     }
@@ -60,14 +66,13 @@ public class InputListenerSystem extends AbstractAppState implements ActionListe
     @Override
     public void onAction(String binding, boolean value, float tpf) {
         Keyboard keyboard = Keyboard.fromName(binding);
+
         switch (keyboard) {
             case LEFT -> moveComponent.left = value;
             case RIGHT -> moveComponent.right = value;
             case UP -> moveComponent.up = value;
             case DOWN -> moveComponent.down = value;
-            case SPACE -> characterComponent.control.jump();
+            case SPACE -> control.jump();
         }
     }
-
-
 }
