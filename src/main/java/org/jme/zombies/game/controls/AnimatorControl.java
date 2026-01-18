@@ -4,10 +4,9 @@ import com.jme3.anim.AnimComposer;
 import com.jme3.anim.SkinningControl;
 import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
-import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
-import com.jme3.scene.control.Control;
+import org.jme.zombies.game.utils.SceneUtils;
 
 import java.util.Objects;
 
@@ -22,10 +21,10 @@ public class AnimatorControl extends AbstractControl {
         super.setSpatial(spatial);
 
         if (spatial != null) {
-            skControl = getComponentInChildren(spatial, SkinningControl.class);
+            skControl = SceneUtils.getComponentInChildren(spatial, SkinningControl.class);
             Objects.requireNonNull(skControl, "SkinningControl not found: " + spatial);
 
-            animComposer = getComponentInChildren(spatial, AnimComposer.class);
+            animComposer = SceneUtils.getComponentInChildren(spatial, AnimComposer.class);
             Objects.requireNonNull(animComposer, "AnimComposer not found: " + spatial);
 
             configureAnimClips();
@@ -60,23 +59,4 @@ public class AnimatorControl extends AbstractControl {
     @Override
     protected void controlRender(RenderManager rm, ViewPort vp) {
     }
-
-    public static <T extends Control> T getComponentInChildren(Spatial sp, final Class<T> type) {
-        T control = sp.getControl(type);
-        if (control != null) {
-            return control;
-        }
-
-        if (sp instanceof Node) {
-            for (Spatial child : ((Node) sp).getChildren()) {
-                control = getComponentInChildren(child, type);
-                if (control != null) {
-                    return control;
-                }
-            }
-        }
-
-        return null;
-    }
-
 }

@@ -36,7 +36,7 @@ import org.recast4j.detour.NavMeshDataCreateParams;
 import org.recast4j.recast.Heightfield;
 import org.recast4j.recast.PolyMesh;
 import org.recast4j.recast.PolyMeshDetail;
-import org.recast4j.recast.RecastBuilder;
+import org.recast4j.recast.RecastBuilder.RecastBuilderResult;
 import org.recast4j.recast.RecastBuilderConfig;
 import org.recast4j.recast.RecastConfig;
 import org.recast4j.recast.RecastConstants;
@@ -131,7 +131,6 @@ public class TerrainFactory implements Context {
     private void addLighting() {
         rootNode.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
 
-        // Set the viewport's background color to light blue.
         ColorRGBA skyColor = new ColorRGBA(0.1f, 0.2f, 0.4f, 1f);
         viewPort.setBackgroundColor(skyColor);
 
@@ -154,14 +153,15 @@ public class TerrainFactory implements Context {
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         fpp.addFilter(shadowFilter);
         fpp.addFilter(new FXAAFilter());
+
         viewPort.addProcessor(fpp);
     }
 
     private void buildSoloModified() {
-        JmeInputGeomProvider m_geom = InputGeomProviderBuilder.build(worldNode);
-        setNavMeshModifiers(m_geom, worldNode);
+        JmeInputGeomProvider geomProvider = InputGeomProviderBuilder.build(worldNode);
+        setNavMeshModifiers(geomProvider, worldNode);
 
-        RecastConfig cfg = new RecastConfigBuilder()
+        RecastConfig recastConfig = new RecastConfigBuilder()
                 .withPartitionType(RecastConstants.PartitionType.WATERSHED)
                 .withWalkableAreaMod(AREAMOD_GROUND)
                 .withAgentRadius(agentRadius)
@@ -178,21 +178,30 @@ public class TerrainFactory implements Context {
                 .build();
 
         //Create a RecastBuilderConfig builder with world bounds of our geometry.
-        RecastBuilderConfig builderCfg = new RecastBuilderConfig(cfg, m_geom.getMeshBoundsMin(), m_geom.getMeshBoundsMax());
+        RecastBuilderConfig builderCfg = new RecastBuilderConfig(
+                recastConfig,
+                geomProvider.getMeshBoundsMin(),
+                geomProvider.getMeshBoundsMax()
+        );
 
         Telemetry telemetry = new Telemetry();
         // Rasterize input polygon soup.
-        Heightfield solid = JmeRecastVoxelization.buildSolidHeightfield(m_geom, builderCfg, telemetry);
+        Heightfield solid = JmeRecastVoxelization.buildSolidHeightfield(geomProvider, builderCfg, telemetry);
 
         JmeRecastBuilder rcBuilder = new JmeRecastBuilder();
-        RecastBuilder.RecastBuilderResult rcResult = rcBuilder.build(builderCfg.borderSize, builderCfg.buildMeshDetail, m_geom, cfg, solid, telemetry);
+        RecastBuilderResult rcResult = rcBuilder.build(
+                builderCfg.borderSize,
+                builderCfg.buildMeshDetail,
+                geomProvider,
+                recastConfig,
+                solid,
+                telemetry
+        );
 
         System.out.println("Telemetry:");
         telemetry.print();
 
-        // Build the parameter object.
-        NavMeshDataCreateParams params = getNavMeshCreateParams(m_geom,
-                rcResult);
+        NavMeshDataCreateParams params = getNavMeshCreateParams(geomProvider, rcResult);
 
         updateAreaAndFlags(params);
 
@@ -200,48 +209,44 @@ public class TerrainFactory implements Context {
 
         navMeshRenderer.drawMeshByArea(meshData, true);
 
-        //Build the NavMesh.
-        navMeshTerrain = new NavMesh(meshData, cfg.maxVertsPerPoly, 0);
+        navMeshTerrain = new NavMesh(meshData, recastConfig.maxVertsPerPoly, 0);
     }
 
-    private NavMeshDataCreateParams getNavMeshCreateParams(
-            JmeInputGeomProvider m_geom,
-            RecastBuilder.RecastBuilderResult rcResult
-    ) {
-        PolyMesh m_pmesh = rcResult.getMesh();
-        PolyMeshDetail m_dmesh = rcResult.getMeshDetail();
+    private NavMeshDataCreateParams getNavMeshCreateParams(JmeInputGeomProvider provider, RecastBuilderResult rcResult) {
+        PolyMesh polyMesh = rcResult.getMesh();
+        PolyMeshDetail detail = rcResult.getMeshDetail();
         NavMeshDataCreateParams params = new NavMeshDataCreateParams();
 
-        for (int i = 0; i < m_pmesh.npolys; ++i) {
-            m_pmesh.flags[i] = 1;
+        for (int i = 0; i < polyMesh.npolys; ++i) {
+            polyMesh.flags[i] = 1;
         }
 
-        params.verts = m_pmesh.verts;
-        params.vertCount = m_pmesh.nverts;
-        params.polys = m_pmesh.polys;
-        params.polyAreas = m_pmesh.areas;
-        params.polyFlags = m_pmesh.flags;
-        params.polyCount = m_pmesh.npolys;
-        params.nvp = m_pmesh.nvp;
+        params.verts = polyMesh.verts;
+        params.vertCount = polyMesh.nverts;
+        params.polys = polyMesh.polys;
+        params.polyAreas = polyMesh.areas;
+        params.polyFlags = polyMesh.flags;
+        params.polyCount = polyMesh.npolys;
+        params.nvp = polyMesh.nvp;
 
-        if (m_dmesh != null) {
-            params.detailMeshes = m_dmesh.meshes;
-            params.detailVerts = m_dmesh.verts;
-            params.detailVertsCount = m_dmesh.nverts;
-            params.detailTris = m_dmesh.tris;
-            params.detailTriCount = m_dmesh.ntris;
+        if (detail != null) {
+            params.detailMeshes = detail.meshes;
+            params.detailVerts = detail.verts;
+            params.detailVertsCount = detail.nverts;
+            params.detailTris = detail.tris;
+            params.detailTriCount = detail.ntris;
         }
 
         params.walkableHeight = TerrainFactory.agentHeight;
         params.walkableRadius = TerrainFactory.agentRadius;
         params.walkableClimb = TerrainFactory.agentMaxClimb;
-        params.bmin = m_pmesh.bmin;
-        params.bmax = m_pmesh.bmax;
+        params.bmin = polyMesh.bmin;
+        params.bmax = polyMesh.bmax;
         params.cs = TerrainFactory.cellSize;
         params.ch = TerrainFactory.cellHeight;
         params.buildBvTree = true;
 
-        params.offMeshConCount = m_geom.getOffMeshConnections().size();
+        params.offMeshConCount = provider.getOffMeshConnections().size();
         params.offMeshConVerts = new float[params.offMeshConCount * 6];
         params.offMeshConRad = new float[params.offMeshConCount];
         params.offMeshConDir = new int[params.offMeshConCount];
@@ -250,7 +255,7 @@ public class TerrainFactory implements Context {
         params.offMeshConUserID = new int[params.offMeshConCount];
 
         for (int i = 0; i < params.offMeshConCount; i++) {
-            OffMeshLink offMeshConn = m_geom.getOffMeshConnections().get(i);
+            OffMeshLink offMeshConn = provider.getOffMeshConnections().get(i);
             System.arraycopy(offMeshConn.verts, 0, params.offMeshConVerts, 6 * i, 6);
             params.offMeshConRad[i] = offMeshConn.radius;
             params.offMeshConDir[i] = offMeshConn.biDirectional ? NavMesh.DT_OFFMESH_CON_BIDIR : 0;
@@ -266,15 +271,19 @@ public class TerrainFactory implements Context {
 
         root.depthFirstTraversal(new SceneGraphVisitorAdapter() {
             @Override
-            public void visit(Geometry geo) {
+            public void visit(Geometry geometry) {
 
-                String[] name = geo.getMaterial().getName().split("_");
+                if (geometry.getMaterial() == null) {
+                    return;
+                }
+
+                String[] name = geometry.getMaterial().getName().split("_");
                 NavMeshModifier mod = switch (name[0]) {
-                    case "water" -> new NavMeshModifier(geo, AREAMOD_WATER);
-                    case "road" -> new NavMeshModifier(geo, AREAMOD_ROAD);
-                    case "grass" -> new NavMeshModifier(geo, AREAMOD_GRASS);
-                    case "door" -> new NavMeshModifier(geo, AREAMOD_DOOR);
-                    default -> new NavMeshModifier(geo, AREAMOD_GROUND);
+                    case "water" -> new NavMeshModifier(geometry, AREAMOD_WATER);
+                    case "road" -> new NavMeshModifier(geometry, AREAMOD_ROAD);
+                    case "grass" -> new NavMeshModifier(geometry, AREAMOD_GRASS);
+                    case "door" -> new NavMeshModifier(geometry, AREAMOD_DOOR);
+                    default -> new NavMeshModifier(geometry, AREAMOD_GROUND);
                 };
 
                 m_geom.addModification(mod);

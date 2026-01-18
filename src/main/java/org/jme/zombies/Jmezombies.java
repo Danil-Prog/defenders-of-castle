@@ -55,7 +55,6 @@ public class Jmezombies extends SimpleApplication {
 
     @Override
     public void simpleInitApp() {
-        EntityFactory.rootNode = rootNode;
         EntityFactory.assetManager = assetManager;
 
         stateManager.attach(bulletAppState);

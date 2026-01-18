@@ -31,7 +31,6 @@ public class EntityFactory {
 
     public static final EntityData entityData = new DefaultEntityData();
 
-    public static Node rootNode;
     public static Node worldNode;
     public static AssetManager assetManager;
     public static BulletAppState bulletAppState;
