@@ -2,27 +2,27 @@ package org.jme.zombies.game;
 
 import org.jme.zombies.Jmezombies;
 import org.jme.zombies.game.entity.EntityFactory;
-import org.jme.zombies.game.terrain.TerrainFactory;
+import org.jme.zombies.game.terrain.AreaFactory;
 
 public class GameContext {
 
-    private final TerrainFactory terrainFactory;
+    private final AreaFactory areaFactory;
 
     public GameContext(Jmezombies game) {
-        this.terrainFactory = new TerrainFactory(game);
+        this.areaFactory = new AreaFactory(game);
     }
 
     public void initialize() {
-        terrainFactory.buildTerrainEnvironment();
+        areaFactory.buildTerrainEnvironment();
 
-        EntityFactory.worldNode = terrainFactory.getWorldNode();
-        EntityFactory.navMeshTerrain = terrainFactory.getNavMeshTerrain();
+        EntityFactory.worldNode = areaFactory.getWorldNode();
+        EntityFactory.navMeshTerrain = areaFactory.getNavMeshTerrain();
 
         EntityFactory.createPlayer();
         EntityFactory.createEnemy(0f, 0f);
     }
 
-    public TerrainFactory getTerrainFactory() {
-        return terrainFactory;
+    public AreaFactory getTerrainFactory() {
+        return areaFactory;
     }
 }

@@ -4,5 +4,5 @@ import com.simsilica.es.EntityComponent;
 
 public class VelocityComponent implements EntityComponent {
 
-    public float velocity = 0.5f;
+    public float velocity = 1f;
 }

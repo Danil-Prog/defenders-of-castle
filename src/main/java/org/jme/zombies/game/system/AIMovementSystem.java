@@ -18,6 +18,7 @@ import org.jme.zombies.game.component.AIComponent;
 import org.jme.zombies.game.component.NodeComponent;
 import org.jme.zombies.game.component.PositionComponent;
 import org.jme.zombies.game.entity.EntityFactory;
+import org.jme.zombies.game.terrain.AreaInfo;
 import org.recast4j.detour.DefaultQueryFilter;
 import org.recast4j.detour.FindRandomPointResult;
 import org.recast4j.detour.NavMesh;
@@ -105,8 +106,8 @@ public class AIMovementSystem extends AbstractAppState {
             NavMeshAgentDebug debug = new NavMeshAgentDebug(assetManager);
 
             aiComponent.agent = enemy.getControl(NavMeshAgent.class);
-            aiComponent.agent.setSpeed(5);
-            aiComponent.agent.setStoppingDistance(7f);
+            aiComponent.agent.setSpeed(4);
+            aiComponent.agent.setStoppingDistance(3f);
 
             enemy.addControl(aiComponent.agent);
             enemy.addControl(debug);

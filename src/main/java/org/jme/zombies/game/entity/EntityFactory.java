@@ -6,9 +6,11 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.BetterCharacterControl;
 import com.jme3.bullet.control.CharacterControl;
+import com.jme3.math.Quaternion;
 import com.jme3.math.Vector3f;
 import com.jme3.recast4j.ai.NavMeshAgent;
 import com.jme3.renderer.queue.RenderQueue;
+import com.jme3.renderer.queue.RenderQueue.ShadowMode;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.simsilica.es.EntityData;
@@ -56,7 +58,10 @@ public class EntityFactory {
         control.setFallSpeed(30);
         control.setGravity(50);
 
+        player.setLocalTranslation(new Vector3f(0f, 10, 0f));
+
         player.addControl(control);
+        player.setShadowMode(ShadowMode.CastAndReceive);
 
         worldNode.attachChild(player);
 
@@ -82,7 +87,7 @@ public class EntityFactory {
         var npc = nodeComponent.entity;
         npc.scale(2f);
         npc.setName("Enemy_" + index++);
-        npc.setLocalTranslation(new Vector3f(x, 0f, z));
+        npc.setLocalTranslation(new Vector3f(x, 3f, z));
 
         npc.addControl(new BetterCharacterControl(0.5f, 3f, 10f));
         npc.addControl(new NavMeshAgent(navMeshTerrain));

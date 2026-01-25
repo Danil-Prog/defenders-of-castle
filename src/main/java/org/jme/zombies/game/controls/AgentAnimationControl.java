@@ -35,7 +35,7 @@ public class AgentAnimationControl extends AbstractControl {
             animator.setSpeed(1);
         } else {
             animator.setAnimation("Walk");
-            animator.setSpeed(2);
+            animator.setSpeed(2.5f);
         }
     }
 

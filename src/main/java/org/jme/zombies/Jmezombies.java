@@ -21,6 +21,7 @@ import org.jme.zombies.game.listeners.BallCollisionListener;
 import org.jme.zombies.game.system.AIMovementSystem;
 import org.jme.zombies.game.system.InputListenerSystem;
 import org.jme.zombies.game.system.PlayerMovementSystem;
+import org.jme.zombies.game.system.WeaponMovementSystem;
 import org.recast4j.detour.NavMesh;
 
 public class Jmezombies extends SimpleApplication {
@@ -38,7 +39,7 @@ public class Jmezombies extends SimpleApplication {
         AppSettings settings = new AppSettings(true);
         settings.setTitle("Jmezombies");
         settings.setFullscreen(false);
-        settings.setWindowSize(1366, 768);
+        settings.setWindowSize(1920, 1080);
 
         app.setSettings(settings);
 
@@ -79,10 +80,12 @@ public class Jmezombies extends SimpleApplication {
         AIMovementSystem aiMovementSystem = new AIMovementSystem(navMesh);
         InputListenerSystem inputListenerSystem = new InputListenerSystem();
         PlayerMovementSystem playerMovementSystem = new PlayerMovementSystem();
+        WeaponMovementSystem weaponMovementSystem = new WeaponMovementSystem();
 
         stateManager.attach(aiMovementSystem);
         stateManager.attach(inputListenerSystem);
         stateManager.attach(playerMovementSystem);
+        stateManager.attach(weaponMovementSystem);
 
         bulletAppState.setDebugEnabled(false);
         bulletAppState.getPhysicsSpace().addCollisionListener(new BallCollisionListener(this));
