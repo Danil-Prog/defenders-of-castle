@@ -5,11 +5,11 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
-import org.jme.zombies.game.utils.SceneUtils;
+import org.jme.zombies.game.utils.SceneFactory;
 
 import java.util.Objects;
 
-import static org.jme.zombies.game.utils.SceneUtils.getComponent;
+import static org.jme.zombies.game.utils.SceneFactory.getComponent;
 
 public class AgentAnimationControl extends AbstractControl {
 
@@ -20,7 +20,7 @@ public class AgentAnimationControl extends AbstractControl {
     public void setSpatial(Spatial spatial) {
         super.setSpatial(spatial);
         if (spatial != null) {
-            this.agent = SceneUtils.getComponent(spatial, NavMeshAgent.class);
+            this.agent = SceneFactory.getComponent(spatial, NavMeshAgent.class);
             Objects.requireNonNull(agent, "Agent not found: " + spatial);
 
             this.animator = getComponent(spatial, AnimatorControl.class);

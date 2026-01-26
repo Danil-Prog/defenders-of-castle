@@ -2,26 +2,16 @@ package org.jme.zombies;
 
 import com.github.stephengold.wrench.LwjglAssetLoader;
 import com.jme3.app.SimpleApplication;
-import com.jme3.asset.TextureKey;
 import com.jme3.bullet.BulletAppState;
-import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.font.BitmapText;
-import com.jme3.input.MouseInput;
-import com.jme3.input.controls.ActionListener;
-import com.jme3.input.controls.MouseButtonTrigger;
-import com.jme3.material.Material;
-import com.jme3.renderer.queue.RenderQueue;
-import com.jme3.scene.Geometry;
-import com.jme3.scene.shape.Sphere;
 import com.jme3.system.AppSettings;
-import com.jme3.texture.Texture;
 import org.jme.zombies.game.GameContext;
 import org.jme.zombies.game.entity.EntityFactory;
 import org.jme.zombies.game.listeners.BallCollisionListener;
 import org.jme.zombies.game.system.AIMovementSystem;
-import org.jme.zombies.game.system.InputListenerSystem;
 import org.jme.zombies.game.system.PlayerMovementSystem;
 import org.jme.zombies.game.system.WeaponMovementSystem;
+import org.jme.zombies.game.utils.MappingInput;
 import org.recast4j.detour.NavMesh;
 
 public class Jmezombies extends SimpleApplication {
@@ -46,15 +36,6 @@ public class Jmezombies extends SimpleApplication {
         app.start();
     }
 
-    private Material stoneMaterial;
-
-    private static final Sphere ball;
-
-    static {
-        ball = new Sphere(32, 32, 0.4f, true, false);
-        ball.setTextureMode(Sphere.TextureMode.Projected);
-    }
-
     @Override
     public void simpleInitApp() {
         assetManager.registerLoader(LwjglAssetLoader.class,
@@ -67,8 +48,6 @@ public class Jmezombies extends SimpleApplication {
 
         GameContext gameContext = new GameContext(this);
 
-        initInputs();
-        initMaterials();
         initCrossHairs();
 
         EntityFactory.bulletAppState = bulletAppState;
@@ -78,54 +57,18 @@ public class Jmezombies extends SimpleApplication {
         NavMesh navMesh = gameContext.getTerrainFactory().getNavMeshTerrain();
 
         AIMovementSystem aiMovementSystem = new AIMovementSystem(navMesh);
-        InputListenerSystem inputListenerSystem = new InputListenerSystem();
         PlayerMovementSystem playerMovementSystem = new PlayerMovementSystem();
         WeaponMovementSystem weaponMovementSystem = new WeaponMovementSystem();
 
         stateManager.attach(aiMovementSystem);
-        stateManager.attach(inputListenerSystem);
         stateManager.attach(playerMovementSystem);
         stateManager.attach(weaponMovementSystem);
 
         bulletAppState.setDebugEnabled(false);
         bulletAppState.getPhysicsSpace().addCollisionListener(new BallCollisionListener(this));
-    }
 
-    private void initInputs() {
-        inputManager.addMapping("shoot", new MouseButtonTrigger(MouseInput.BUTTON_LEFT));
-        inputManager.addListener(actionListener, "shoot");
-    }
-
-    final private ActionListener actionListener = (name, keyPressed, tpf) -> {
-        if (name.equals("shoot") && !keyPressed) {
-            makeCannonBall();
-        }
-    };
-
-    public void initMaterials() {
-        stoneMaterial = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-        TextureKey textureKey = new TextureKey("Textures/Terrain/Rock/Rock.PNG");
-        textureKey.setGenerateMips(true);
-        Texture texture = assetManager.loadTexture(textureKey);
-        stoneMaterial.setTexture("ColorMap", texture);
-    }
-
-    public void makeCannonBall() {
-        Geometry geometry = new Geometry("ball", ball);
-        geometry.setMaterial(stoneMaterial);
-        geometry.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
-
-        rootNode.attachChild(geometry);
-
-        geometry.setLocalTranslation(cam.getLocation().add(cam.getDirection()));
-
-        RigidBodyControl bodyControl = new RigidBodyControl(0.1f);
-        geometry.addControl(bodyControl);
-
-        bodyControl.setPhysicsLocation(cam.getLocation().add(cam.getDirection().mult(1.5f)));
-        bodyControl.setLinearVelocity(cam.getDirection().mult(25));
-
-        bulletAppState.getPhysicsSpace().add(bodyControl);
+        MappingInput.mapKeyboard(inputManager);
+        MappingInput.mapMouse(inputManager, cam);
     }
 
     protected void initCrossHairs() {

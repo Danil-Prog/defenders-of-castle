@@ -3,13 +3,10 @@ package org.jme.zombies.game.terrain;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.control.RigidBodyControl;
-import com.jme3.light.DirectionalLight;
 import com.jme3.light.PointLight;
 import com.jme3.math.ColorRGBA;
-import com.jme3.math.Vector3f;
 import com.jme3.post.FilterPostProcessor;
-import com.jme3.post.filters.BloomFilter;
-import com.jme3.post.filters.FXAAFilter;
+import com.jme3.post.filters.FogFilter;
 import com.jme3.recast4j.geom.InputGeomProviderBuilder;
 import com.jme3.recast4j.geom.JmeInputGeomProvider;
 import com.jme3.recast4j.geom.JmeRecastBuilder;
@@ -27,7 +24,6 @@ import com.jme3.scene.SceneGraphVisitorAdapter;
 import com.jme3.scene.Spatial;
 import com.jme3.shadow.DirectionalLightShadowFilter;
 import com.jme3.shadow.EdgeFilteringMode;
-import com.jme3.shadow.PointLightShadowRenderer;
 import com.jme3.util.SkyFactory;
 import org.jme.zombies.Jmezombies;
 import org.jme.zombies.game.Context;
@@ -150,21 +146,26 @@ public class AreaFactory implements Context {
         ColorRGBA skyColor = new ColorRGBA(0.1f, 0.2f, 0.4f, 1f);
         viewPort.setBackgroundColor(skyColor);
 
-        DirectionalLight directionalLight = new DirectionalLight();
-        directionalLight.setName("Sun");
-        directionalLight.setDirection(new Vector3f(-1f, -3f, -5f).normalizeLocal());
-        rootNode.addLight(directionalLight);
+//        DirectionalLight directionalLight = new DirectionalLight();
+//        directionalLight.setName("Sun");
+//        directionalLight.setDirection(new Vector3f(-1f, -3f, -5f).normalizeLocal());
+//        rootNode.addLight(directionalLight);
 
 //        // Render shadows based on the directional light.
         DirectionalLightShadowFilter shadowFilter = new DirectionalLightShadowFilter(assetManager, 2_048, 3);
-        shadowFilter.setLight(directionalLight);
+//        shadowFilter.setLight(directionalLight);
         shadowFilter.setShadowIntensity(0.4f);
         shadowFilter.setShadowZExtend(256);
         shadowFilter.setEdgeFilteringMode(EdgeFilteringMode.PCFPOISSON);
 
         FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
         fpp.addFilter(shadowFilter);
-        fpp.addFilter(new FXAAFilter());
+        FogFilter fogFilter = new FogFilter();
+        fogFilter.setFogColor(ColorRGBA.Gray);
+        fogFilter.setFogDistance(35f);
+        fogFilter.setFogDensity(0.5f);
+
+        fpp.addFilter(fogFilter);
 
 //        FilterPostProcessor fpp = new FilterPostProcessor(assetManager);
 //        BloomFilter bloom = new BloomFilter();

@@ -6,7 +6,7 @@ import com.jme3.renderer.RenderManager;
 import com.jme3.renderer.ViewPort;
 import com.jme3.scene.Spatial;
 import com.jme3.scene.control.AbstractControl;
-import org.jme.zombies.game.utils.SceneUtils;
+import org.jme.zombies.game.utils.SceneFactory;
 
 import java.util.Objects;
 
@@ -21,10 +21,10 @@ public class AnimatorControl extends AbstractControl {
         super.setSpatial(spatial);
 
         if (spatial != null) {
-            skControl = SceneUtils.getComponentInChildren(spatial, SkinningControl.class);
+            skControl = SceneFactory.getComponentInChildren(spatial, SkinningControl.class);
             Objects.requireNonNull(skControl, "SkinningControl not found: " + spatial);
 
-            animComposer = SceneUtils.getComponentInChildren(spatial, AnimComposer.class);
+            animComposer = SceneFactory.getComponentInChildren(spatial, AnimComposer.class);
             Objects.requireNonNull(animComposer, "AnimComposer not found: " + spatial);
 
             configureAnimClips();

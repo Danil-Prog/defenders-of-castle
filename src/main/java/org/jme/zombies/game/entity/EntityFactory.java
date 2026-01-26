@@ -6,11 +6,12 @@ import com.jme3.bullet.BulletAppState;
 import com.jme3.bullet.collision.shapes.CapsuleCollisionShape;
 import com.jme3.bullet.control.BetterCharacterControl;
 import com.jme3.bullet.control.CharacterControl;
-import com.jme3.math.Quaternion;
+import com.jme3.bullet.control.RigidBodyControl;
 import com.jme3.math.Vector3f;
 import com.jme3.recast4j.ai.NavMeshAgent;
 import com.jme3.renderer.queue.RenderQueue;
 import com.jme3.renderer.queue.RenderQueue.ShadowMode;
+import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.simsilica.es.EntityData;
@@ -21,9 +22,11 @@ import org.jme.zombies.game.component.MoveComponent;
 import org.jme.zombies.game.component.NodeComponent;
 import org.jme.zombies.game.component.PlayerComponent;
 import org.jme.zombies.game.component.PositionComponent;
+import org.jme.zombies.game.component.ShootComponent;
 import org.jme.zombies.game.component.VelocityComponent;
 import org.jme.zombies.game.controls.AgentAnimationControl;
 import org.jme.zombies.game.controls.AnimatorControl;
+import org.jme.zombies.game.utils.ShapeUtils;
 import org.recast4j.detour.NavMesh;
 
 import java.util.ArrayList;
@@ -37,6 +40,7 @@ public class EntityFactory {
     public static AssetManager assetManager;
     public static BulletAppState bulletAppState;
     public static NavMesh navMeshTerrain;
+
     public static List<EntityId> enemies = new ArrayList<>();
 
     private static EntityId playerEntityId;
@@ -108,6 +112,40 @@ public class EntityFactory {
         );
 
         enemies.add(id);
+    }
+
+    public static void createBall(Vector3f location, Vector3f direction) {
+        EntityId id = entityData.createEntity();
+
+        ShapeUtils shapeUtils = new ShapeUtils(assetManager);
+
+        Geometry sphere = shapeUtils.createBall();
+        RigidBodyControl ballControl = new RigidBodyControl(0.1f);
+
+        NodeComponent nodeComponent = new NodeComponent();
+        nodeComponent.entity = new Node();
+
+        ShootComponent shootComponent = new ShootComponent();
+
+        var ball = nodeComponent.entity;
+
+        ball.attachChild(sphere);
+        ball.setName("Ball_" + index++);
+        ball.addControl(ballControl);
+        ball.setShadowMode(ShadowMode.CastAndReceive);
+
+        ballControl.setPhysicsLocation(location.add(direction.mult(3f)));
+        ballControl.setLinearVelocity(direction.mult(20));
+
+        bulletAppState.getPhysicsSpace().add(ball);
+        worldNode.attachChild(ball);
+
+        entityData.setComponents(
+                id,
+                nodeComponent,
+                shootComponent
+        );
+
     }
 
     public static EntityId getPlayerEntityId() {
