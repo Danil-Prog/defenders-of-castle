@@ -59,7 +59,7 @@ public class BulletCollisionListener implements PhysicsCollisionListener {
         }
 
         damageComponent.isHit = true;
-        damageComponent.damage = random.nextFloat(5, 20);
+        damageComponent.damage = random.nextFloat(20, 40);
 
         System.out.println("Попал по врагу: " + target.getName() + ", нанес урону: " + damageComponent.damage);
     }

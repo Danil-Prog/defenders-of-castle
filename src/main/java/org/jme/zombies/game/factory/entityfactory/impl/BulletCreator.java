@@ -67,7 +67,6 @@ public class BulletCreator extends EntityCreator<EntityType> {
         rigidBodyControl.setPhysicsLocation(location.add(direction.mult(3f)));
         rigidBodyControl.setLinearVelocity(direction.mult(20));
 
-
         super.render(bullet);
 
         entityData.setComponents(

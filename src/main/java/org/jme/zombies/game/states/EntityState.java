@@ -41,8 +41,8 @@ public class EntityState extends AbstractAppState {
         return entityFactory.getEntityData().getEntities(types);
     }
 
-    public boolean removeComponentByEntityId(EntityId entityId, Class type) {
-        return entityFactory.removeComponent(entityId, type);
+    public void removeComponentByEntityId(EntityId entityId, Class type) {
+        entityFactory.removeComponent(entityId, type);
     }
 
     public Entity getEntityOrThrow(Class... types) {

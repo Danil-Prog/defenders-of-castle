@@ -61,7 +61,7 @@ public class HealthBarSystem extends AbstractAppState {
                 enemy.attachChild(billboard);
             }
 
-            if (!damageComponent.isHit) {
+            if (healthComponent.health < 0 || !damageComponent.isHit) {
                 return;
             }
 
