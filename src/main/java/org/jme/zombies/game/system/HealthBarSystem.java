@@ -14,8 +14,11 @@ import com.jme3.scene.control.BillboardControl;
 import com.jme3.scene.control.BillboardControl.Alignment;
 import com.jme3.scene.shape.Quad;
 import com.simsilica.es.EntitySet;
+import org.jme.zombies.game.component.DamageComponent;
+import org.jme.zombies.game.component.DetachComponent;
 import org.jme.zombies.game.component.HealthComponent;
 import org.jme.zombies.game.component.NodeComponent;
+import org.jme.zombies.game.controls.AgentAnimationControl;
 import org.jme.zombies.game.states.EntityState;
 
 public class HealthBarSystem extends AbstractAppState {
@@ -31,7 +34,8 @@ public class HealthBarSystem extends AbstractAppState {
 
         this.entities = entityState.getEntities(
                 NodeComponent.class,
-                HealthComponent.class
+                HealthComponent.class,
+                DamageComponent.class
         );
 
         this.assetManager = app.getAssetManager();
@@ -41,43 +45,71 @@ public class HealthBarSystem extends AbstractAppState {
     public void update(float tpf) {
         entities.applyChanges();
 
-//        BillboardControl
         entities.forEach(entity -> {
             HealthComponent healthComponent = entity.get(HealthComponent.class);
             NodeComponent nodeComponent = entity.get(NodeComponent.class);
+            DamageComponent damageComponent = entity.get(DamageComponent.class);
 
             var enemy = nodeComponent.entity;
 
-            Node node = (Node) enemy.getChild("Billboard");
+            Node billboard = (Node) enemy.getChild("Billboard");
 
-            if (node == null) {
-                Node billboard = new Node("Billboard");
-
-                BillboardControl control = new BillboardControl();
-                control.setAlignment(Alignment.Camera);
-
-                billboard.setShadowMode(ShadowMode.Off);
-                billboard.setBatchHint(BatchHint.Inherit);
-                billboard.setLocalTranslation(0f, 4.5f, 0f);
-
-                float width = 1f;
-                float height = 0.15f;
-
-                Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
-                material.setColor("Color", ColorRGBA.Red);
-
-                Quad quad = new Quad(width, height);
-
-                Geometry geometry = new Geometry("HP", quad);
-                geometry.setMaterial(material);
-                geometry.setLocalTranslation(-width / 2f, 0f, 0f);
-
-                billboard.attachChild(geometry);
-//                billboard.addControl(control);
-
+            if (billboard == null) {
+                billboard = healthBillboardInit();
                 enemy.attachChild(billboard);
             }
+
+            if (!damageComponent.isHit) {
+                return;
+            }
+
+            Geometry geometry = (Geometry) billboard.getChild("HP");
+            healthComponent.health -= damageComponent.damage;
+
+            System.out.println(healthComponent.health);
+
+            float width = healthComponent.health * 0.01f;
+
+            Quad quad = (Quad) geometry.getMesh();
+            quad.updateGeometry(width, 0.15f);
+
+            System.out.println("Здоровья: " + width);
+
+            damageComponent.isHit = false;
+
+            // Animate enemy's death and remove it from the terrain
+            if (healthComponent.health < 0) {
+                enemy.getControl(AgentAnimationControl.class).markDead();
+                entity.set(new DetachComponent(System.currentTimeMillis() + 2500));
+            }
         });
+    }
+
+    private Node healthBillboardInit() {
+        Node billboard = new Node("Billboard");
+
+        BillboardControl control = new BillboardControl();
+        control.setAlignment(Alignment.Camera);
+
+        billboard.setShadowMode(ShadowMode.Off);
+        billboard.setBatchHint(BatchHint.Inherit);
+        billboard.setLocalTranslation(0f, 4.5f, 0f);
+
+        float width = 1f;
+        float height = 0.15f;
+
+        Material material = new Material(assetManager, "Common/MatDefs/Misc/Unshaded.j3md");
+        material.setColor("Color", ColorRGBA.Red);
+
+        Quad quad = new Quad(width, height);
+
+        Geometry geometry = new Geometry("HP", quad);
+        geometry.setMaterial(material);
+        geometry.setLocalTranslation(-width / 2f, 0f, 0f);
+
+        billboard.attachChild(geometry);
+
+        return billboard;
     }
 
 }

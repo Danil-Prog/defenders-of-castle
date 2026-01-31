@@ -59,8 +59,10 @@ public class GameApplication extends SimpleApplication {
         stateManager.attach(new DetachingSystem());
         stateManager.attach(new HealthBarSystem());
 
+        var ballCollisionListener = new BallCollisionListener(this);
+
         bulletAppState.setDebugEnabled(false);
-        bulletAppState.getPhysicsSpace().addCollisionListener(new BallCollisionListener(this));
+        bulletAppState.getPhysicsSpace().addCollisionListener(ballCollisionListener);
     }
 
     protected void initCrossHairs() {

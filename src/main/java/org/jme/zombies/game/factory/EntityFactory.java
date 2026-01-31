@@ -6,6 +6,7 @@ import com.jme3.asset.AssetManager;
 import com.jme3.bullet.BulletAppState;
 import com.jme3.renderer.Camera;
 import com.jme3.scene.Node;
+import com.simsilica.es.Entity;
 import com.simsilica.es.EntityData;
 import com.simsilica.es.EntityId;
 import com.simsilica.es.base.DefaultEntityData;
@@ -59,6 +60,10 @@ public class EntityFactory {
 
     public EntityId createEntity(EntityType type, Object... params) {
         return entityCreators.get(type).createEntity(params);
+    }
+
+    public Entity getEntity(long entityId, Class... types) {
+        return entityData.getEntity(new EntityId(entityId), types);
     }
 
     public void removeEntity(EntityId entityId) {

@@ -11,6 +11,7 @@ import com.simsilica.es.EntityId;
 import org.jme.zombies.game.component.DetachComponent;
 import org.jme.zombies.game.component.NodeComponent;
 import org.jme.zombies.game.component.ShootComponent;
+import org.jme.zombies.game.controls.BulletControl;
 import org.jme.zombies.game.entity.EntityType;
 import org.jme.zombies.game.factory.EntityFactory.FactoryData;
 import org.jme.zombies.game.factory.entityfactory.EntityCreator;
@@ -44,7 +45,8 @@ public class BulletCreator extends EntityCreator<EntityType> {
         EntityId id = entityData.createEntity();
 
         Geometry sphere = shapeUtils.createBall();
-        RigidBodyControl ballControl = new RigidBodyControl(0.1f);
+        RigidBodyControl rigidBodyControl = new RigidBodyControl(0.1f);
+        BulletControl bulletControl = new BulletControl();
 
         NodeComponent nodeComponent = new NodeComponent();
         nodeComponent.entity = new Node();
@@ -54,17 +56,19 @@ public class BulletCreator extends EntityCreator<EntityType> {
 
         ShootComponent shootComponent = new ShootComponent();
 
-        var ball = nodeComponent.entity;
+        var bullet = nodeComponent.entity;
 
-        ball.attachChild(sphere);
-        ball.setName("Ball_" + index++);
-        ball.addControl(ballControl);
-        ball.setShadowMode(ShadowMode.CastAndReceive);
+        bullet.attachChild(sphere);
+        bullet.setName("Ball_" + index++);
+        bullet.addControl(rigidBodyControl);
+        bullet.setShadowMode(ShadowMode.CastAndReceive);
+        bullet.addControl(bulletControl);
 
-        ballControl.setPhysicsLocation(location.add(direction.mult(3f)));
-        ballControl.setLinearVelocity(direction.mult(20));
+        rigidBodyControl.setPhysicsLocation(location.add(direction.mult(3f)));
+        rigidBodyControl.setLinearVelocity(direction.mult(20));
 
-        super.render(ball);
+
+        super.render(bullet);
 
         entityData.setComponents(
                 id,

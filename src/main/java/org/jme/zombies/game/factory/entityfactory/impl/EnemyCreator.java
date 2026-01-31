@@ -12,6 +12,7 @@ import com.simsilica.es.EntityData;
 import com.simsilica.es.EntityId;
 import org.jme.zombies.game.component.AIComponent;
 import org.jme.zombies.game.component.CrowdComponent;
+import org.jme.zombies.game.component.DamageComponent;
 import org.jme.zombies.game.component.HealthComponent;
 import org.jme.zombies.game.component.NodeComponent;
 import org.jme.zombies.game.controls.AgentAnimationControl;
@@ -52,6 +53,8 @@ public class EnemyCreator extends EntityCreator<EntityType> {
         NodeComponent nodeComponent = new NodeComponent();
         nodeComponent.entity = (Node) AnimMigrationUtils.migrate(model);
 
+        DamageComponent damageComponent = new DamageComponent();
+
         var npc = nodeComponent.entity;
         npc.scale(0.8f);
         npc.setName("Enemy_" + index++);
@@ -61,6 +64,7 @@ public class EnemyCreator extends EntityCreator<EntityType> {
         npc.addControl(new NavMeshAgent(navMesh));
         npc.addControl(new AnimatorControl());
         npc.addControl(new AgentAnimationControl());
+        npc.setUserData("entityId", entityId.getId());
 
         npc.setShadowMode(RenderQueue.ShadowMode.CastAndReceive);
 
@@ -72,6 +76,7 @@ public class EnemyCreator extends EntityCreator<EntityType> {
                 entityId,
                 aiComponent,
                 nodeComponent,
+                damageComponent,
                 new HealthComponent(),
                 new CrowdComponent()
         );

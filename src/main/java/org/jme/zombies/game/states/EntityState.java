@@ -29,6 +29,10 @@ public class EntityState extends AbstractAppState {
         entityFactory.createEntity(type, params);
     }
 
+    public Entity getEntityById(long entityId, Class... types) {
+        return entityFactory.getEntity(entityId, types);
+    }
+
     public void removeEntityById(EntityId entityId) {
         entityFactory.removeEntity(entityId);
     }

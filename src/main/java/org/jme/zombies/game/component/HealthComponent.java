@@ -4,5 +4,4 @@ import com.simsilica.es.EntityComponent;
 
 public class HealthComponent implements EntityComponent {
     public float health = 100f;
-
 }

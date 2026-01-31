@@ -15,6 +15,11 @@ public class AgentAnimationControl extends AbstractControl {
 
     private NavMeshAgent agent;
     private AnimatorControl animator;
+    private boolean isDead = false;
+
+    public void markDead() {
+        isDead = true;
+    }
 
     @Override
     public void setSpatial(Spatial spatial) {
@@ -30,7 +35,10 @@ public class AgentAnimationControl extends AbstractControl {
 
     @Override
     public void controlUpdate(float tpf) {
-        if (agent.remainingDistance() < agent.getStoppingDistance() && !agent.pathPending()) {
+        if (isDead) {
+            animator.setAnimation("Armature|Die");
+            animator.setSpeed(1);
+        } else if (agent.remainingDistance() < agent.getStoppingDistance() && !agent.pathPending()) {
             animator.setAnimation("Armature|Attack");
             animator.setSpeed(1);
         } else {

@@ -3,19 +3,24 @@ package org.jme.zombies.game.listeners;
 import com.jme3.asset.AssetManager;
 import com.jme3.bullet.collision.PhysicsCollisionEvent;
 import com.jme3.bullet.collision.PhysicsCollisionListener;
-import com.jme3.material.Material;
-import com.jme3.math.ColorRGBA;
-import com.jme3.scene.Geometry;
 import com.jme3.scene.Node;
-import com.jme3.scene.Spatial;
 import org.jme.zombies.GameApplication;
+import org.jme.zombies.game.component.DamageComponent;
+import org.jme.zombies.game.controls.BulletControl;
+import org.jme.zombies.game.states.EntityState;
+
+import java.util.Random;
 
 public class BallCollisionListener implements PhysicsCollisionListener {
 
     private final AssetManager assetManager;
+    private final Random random;
+    private final EntityState entityState;
 
     public BallCollisionListener(GameApplication app) {
         this.assetManager = app.getAssetManager();
+        this.random = new Random();
+        this.entityState = app.getStateManager().getState(EntityState.class);
     }
 
     @Override
@@ -23,24 +28,39 @@ public class BallCollisionListener implements PhysicsCollisionListener {
         var nameA = event.getNodeA().getName();
         var nameB = event.getNodeB().getName();
 
-        if ((nameA.contains("Ball") || nameB.contains("Ball")) && (nameA.contains("Enemy") || nameB.contains("Enemy"))) {
-            System.out.println("Попал по врагу: " + nameA);
-            Node enemy = (Node) event.getNodeA();
+        Node bullet = null;
+        Node target = null;
 
-            activateRedFlash(enemy);
+        if (nameA.contains("Ball") && nameB.contains("Enemy")) {
+            bullet = (Node) event.getNodeA();
+            target = (Node) event.getNodeB();
+        } else if (nameB.contains("Ball") && nameA.contains("Enemy")) {
+            bullet = (Node) event.getNodeB();
+            target = (Node) event.getNodeA();
         }
-    }
 
-    public void activateRedFlash(Node node) {
-        Material material = new Material(assetManager, "Common/MatDefs/Light/Lighting.j3md");
-        material.setColor("Diffuse", ColorRGBA.Red);
-        material.setColor("Ambient", ColorRGBA.Red);
-        material.setBoolean("UseMaterialColors", true);
-
-        for (Spatial child : node.getChildren()) {
-            if (child instanceof Geometry) {
-                child.setMaterial(material);
-            }
+        if (bullet == null || target == null) {
+            return;
         }
+
+        BulletControl bulletControl = bullet.getControl(BulletControl.class);
+        if (bulletControl == null || bulletControl.isHasHit()) return;
+
+        bulletControl.markHit();
+
+        var entityId = (long) target.getUserData("entityId");
+
+        var enemy = entityState.getEntityById(entityId, DamageComponent.class);
+
+        var damageComponent = enemy.get(DamageComponent.class);
+
+        if (damageComponent == null) {
+            return;
+        }
+
+        damageComponent.isHit = true;
+        damageComponent.damage = random.nextFloat(5, 20);
+
+        System.out.println("Попал по врагу: " + target.getName() + ", нанес урону: " + damageComponent.damage);
     }
 }
