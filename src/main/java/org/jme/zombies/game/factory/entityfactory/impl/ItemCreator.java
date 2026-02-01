@@ -6,6 +6,7 @@ import com.jme3.scene.Node;
 import com.jme3.scene.Spatial;
 import com.simsilica.es.EntityData;
 import com.simsilica.es.EntityId;
+import org.jme.zombies.game.component.DetachComponent;
 import org.jme.zombies.game.component.ItemComponent;
 import org.jme.zombies.game.component.NodeComponent;
 import org.jme.zombies.game.controls.RotationControl;
@@ -40,6 +41,9 @@ public class ItemCreator extends EntityCreator<EntityType> {
         Spatial model = assetManager.loadModel("Items/Gold Bag.j3o");
         model.scale(1f);
 
+        DetachComponent detachComponent = new DetachComponent();
+        detachComponent.expireIn = System.currentTimeMillis() + 15000; // 15sec
+
         NodeComponent nodeComponent = new NodeComponent();
         nodeComponent.entity = new Node();
 
@@ -57,7 +61,8 @@ public class ItemCreator extends EntityCreator<EntityType> {
         entityData.setComponents(
                 entityId,
                 nodeComponent,
-                new ItemComponent()
+                new ItemComponent(),
+                detachComponent
         );
 
         return entityId;
