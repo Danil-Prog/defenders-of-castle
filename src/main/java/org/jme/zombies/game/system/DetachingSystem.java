@@ -7,6 +7,7 @@ import com.jme3.bullet.BulletAppState;
 import com.simsilica.es.EntitySet;
 import org.jme.zombies.game.component.DetachComponent;
 import org.jme.zombies.game.component.NodeComponent;
+import org.jme.zombies.game.controls.AgentAnimationControl;
 import org.jme.zombies.game.entity.EntityType;
 import org.jme.zombies.game.states.EntityState;
 
@@ -40,6 +41,9 @@ public class DetachingSystem extends AbstractAppState {
                 if (entityName.contains("Enemy")) {
                     entityState.createEntityByEntiyType(EntityType.ENEMY, 0f, 0f);
                     entityState.createEntityByEntiyType(EntityType.ENEMY, 0f, 0f);
+
+                    var deathPosition = nodeComponent.entity.getWorldTranslation();
+                    entityState.createEntityByEntiyType(EntityType.ITEM, deathPosition);
                 }
 
                 entityState.removeEntityByEntityId(entity.getId());

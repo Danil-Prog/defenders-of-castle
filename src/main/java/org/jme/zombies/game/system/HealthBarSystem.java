@@ -80,7 +80,6 @@ public class HealthBarSystem extends AbstractAppState {
             // Animate enemy's death and remove it from the terrain
             if (healthComponent.health < 0) {
                 enemy.getControl(AgentAnimationControl.class).markDead();
-                entityState.removeComponentByEntityId(entity.getId(), AIComponent.class);
                 entity.set(new DetachComponent(System.currentTimeMillis() + 2500));
             }
         });
