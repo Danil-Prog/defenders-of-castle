@@ -52,10 +52,10 @@ dependencies {
     implementation 'org.jmonkeyengine:jme3-testdata:' + jmonkeyengineVersion
     implementation 'com.simsilica:sio2:1.8.0'
 
-    implementation files('libs/jme-navmesh-ai-0.1.0-0.1.0.jar')
-    runtimeClasspath files('libs/jme-navmesh-ai-0.1.0-0.1.0.jar')
-
     implementation("com.github.stephengold:MonkeyWrench:1.0.0")
+
+    // AI
+    implementation files('libs/jme-navmesh-ai-0.1.0-0.1.0.jar')
 
     // recast4j
     implementation 'org.recast4j:parent:' + recast4jVersion
@@ -64,6 +64,10 @@ dependencies {
     implementation 'org.recast4j:detour-extras:' + recast4jVersion
     implementation 'org.recast4j:recast:' + recast4jVersion
     implementation 'org.recast4j:detour:' + recast4jVersion
+
+    // gui
+    runtimeOnly "com.simsilica:lemur:1.16.0"
+    runtimeOnly "com.simsilica:lemur-proto:1.13.0"
 
 }
 

@@ -17,7 +17,7 @@ import org.jme.zombies.game.component.NodeComponent;
 import org.jme.zombies.game.component.PlayerComponent;
 import org.jme.zombies.game.component.PositionComponent;
 import org.jme.zombies.game.states.EntityState;
-import org.jme.zombies.game.states.NavigationMeshAppState;
+import org.jme.zombies.game.states.NavigationMeshState;
 import org.recast4j.detour.NavMeshQuery;
 
 import static com.jme3.recast4j.recast.JmeAreaMods.POLYFLAGS_ALL;
@@ -37,7 +37,7 @@ public class AIMovementSystem extends AbstractAppState {
         super.initialize(stateManager, application);
 
         var entityState = stateManager.getState(EntityState.class);
-        var navigationMeshAppState = stateManager.getState(NavigationMeshAppState.class);
+        var navigationMeshAppState = stateManager.getState(NavigationMeshState.class);
         var navigationMesh = navigationMeshAppState.getNavigationMesh();
 
         this.navMeshQuery = new NavMeshQuery(navigationMesh);
