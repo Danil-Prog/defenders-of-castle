@@ -17,8 +17,8 @@ import org.jme.zombies.game.factory.entityfactory.impl.BulletCreator;
 import org.jme.zombies.game.factory.entityfactory.impl.EnemyCreator;
 import org.jme.zombies.game.factory.entityfactory.impl.ItemCreator;
 import org.jme.zombies.game.factory.entityfactory.impl.PlayerCreator;
-import org.jme.zombies.game.states.NavigationMeshAppState;
-import org.jme.zombies.game.states.WorldAppState;
+import org.jme.zombies.game.states.NavigationMeshState;
+import org.jme.zombies.game.states.WorldState;
 import org.recast4j.detour.NavMesh;
 
 import java.util.HashMap;
@@ -32,8 +32,8 @@ public class EntityFactory {
     public EntityFactory(AppStateManager stateManager, Application app) {
         var application = ((GameApplication) app);
 
-        var worldAppState = stateManager.getState(WorldAppState.class);
-        var navigationMeshAppState = stateManager.getState(NavigationMeshAppState.class);
+        var worldAppState = stateManager.getState(WorldState.class);
+        var navigationMeshAppState = stateManager.getState(NavigationMeshState.class);
 
         Node worldNode = worldAppState.getWorldNode();
         AssetManager assetManager = application.getAssetManager();

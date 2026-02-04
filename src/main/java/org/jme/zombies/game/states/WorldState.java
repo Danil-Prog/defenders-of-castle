@@ -17,7 +17,7 @@ import com.jme3.scene.Spatial;
 import com.jme3.util.SkyFactory;
 import org.jme.zombies.GameApplication;
 
-public class WorldAppState extends AbstractAppState {
+public class WorldState extends AbstractAppState {
 
     private BulletAppState bulletAppState;
     private ViewPort viewPort;

@@ -42,7 +42,7 @@ import static com.jme3.recast4j.recast.JmeAreaMods.POLYFLAGS_DOOR;
 import static com.jme3.recast4j.recast.JmeAreaMods.POLYFLAGS_SWIM;
 import static com.jme3.recast4j.recast.JmeAreaMods.POLYFLAGS_WALK;
 
-public class NavigationMeshAppState extends AbstractAppState {
+public class NavigationMeshState extends AbstractAppState {
 
     private Node worldNode;
     private NavMeshDebugRenderer navMeshRenderer;
@@ -61,7 +61,7 @@ public class NavigationMeshAppState extends AbstractAppState {
 
         var application = ((GameApplication) app);
 
-        this.worldNode = stateManager.getState(WorldAppState.class).getWorldNode();
+        this.worldNode = stateManager.getState(WorldState.class).getWorldNode();
         this.navMeshRenderer = new NavMeshDebugRenderer(application.getAssetManager());
 
         buildSoloModified();

@@ -9,8 +9,9 @@ import org.jme.zombies.game.listeners.BulletCollisionListener;
 import org.jme.zombies.game.listeners.InputListener;
 import org.jme.zombies.game.listeners.ShootListener;
 import org.jme.zombies.game.states.EntityState;
-import org.jme.zombies.game.states.NavigationMeshAppState;
-import org.jme.zombies.game.states.WorldAppState;
+import org.jme.zombies.game.states.HudState;
+import org.jme.zombies.game.states.NavigationMeshState;
+import org.jme.zombies.game.states.WorldState;
 import org.jme.zombies.game.system.AIMovementSystem;
 import org.jme.zombies.game.system.DetachingSystem;
 import org.jme.zombies.game.system.HealthBarSystem;
@@ -30,11 +31,12 @@ public class GameApplication extends SimpleApplication {
 
         AppSettings settings = new AppSettings(true);
         settings.setTitle("Defenders of Castle");
-        settings.setFullscreen(true);
-        settings.setWindowSize(1600, 900);
+        settings.setFullscreen(false);
+        settings.setWindowSize(1366, 768);
 
         game.setSettings(settings);
         game.start();
+
     }
 
     @Override
@@ -45,11 +47,12 @@ public class GameApplication extends SimpleApplication {
 
         // Initialize default system
         stateManager.attach(bulletAppState);
-        stateManager.attach(new WorldAppState());
-        stateManager.attach(new NavigationMeshAppState());
+        stateManager.attach(new WorldState());
+        stateManager.attach(new NavigationMeshState());
         stateManager.attach(new EntityState());
         stateManager.attach(new ShootListener());
         stateManager.attach(new InputListener());
+        stateManager.attach(new HudState());
 
         initCrossHairs();
 
