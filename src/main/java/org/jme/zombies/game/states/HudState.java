@@ -3,17 +3,16 @@ package org.jme.zombies.game.states;
 import com.jme3.app.Application;
 import com.jme3.app.state.BaseAppState;
 import com.jme3.scene.Node;
+import com.simsilica.lemur.Axis;
 import com.simsilica.lemur.Container;
 import com.simsilica.lemur.GuiGlobals;
-import com.simsilica.lemur.Label;
-import com.simsilica.lemur.Panel;
-import com.simsilica.lemur.component.IconComponent;
+import com.simsilica.lemur.component.SpringGridLayout;
 import org.jme.zombies.GameApplication;
 
 public class HudState extends BaseAppState {
 
     private Node guiNode;
-    private Container hud;
+    private Container hudRoot;
 
     @Override
     protected void initialize(Application app) {
@@ -22,23 +21,18 @@ public class HudState extends BaseAppState {
         GuiGlobals.getInstance().setCursorEventsEnabled(false);
 
         this.guiNode = application.getGuiNode();
-        this.hud = new Container();
+        this.hudRoot = new Container();
     }
 
     @Override
     protected void cleanup(Application app) {
-        hud.detachAllChildren();
+        hudRoot.detachAllChildren();
 
     }
 
     @Override
     protected void onEnable() {
-        guiNode.attachChild(hud);
-
-        hud.setLocalTranslation(200, 100, 0);
-        var score = new Label("Score");
-
-        hud.addChild(score);
+        guiNode.attachChild(hudRoot);
     }
 
     @Override
