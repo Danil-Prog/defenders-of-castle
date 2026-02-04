@@ -3,15 +3,16 @@ package org.jme.zombies.game.system;
 import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
 import com.jme3.app.state.AppStateManager;
+import com.jme3.bullet.control.CharacterControl;
 import com.jme3.math.Vector3f;
 import com.jme3.renderer.Camera;
 import com.simsilica.es.Entity;
-import com.simsilica.es.EntityId;
-import org.jme.zombies.game.component.CharacterControlComponent;
 import org.jme.zombies.game.component.MoveComponent;
+import org.jme.zombies.game.component.NodeComponent;
+import org.jme.zombies.game.component.PlayerComponent;
 import org.jme.zombies.game.component.PositionComponent;
 import org.jme.zombies.game.component.VelocityComponent;
-import org.jme.zombies.game.entity.EntityFactory;
+import org.jme.zombies.game.states.EntityState;
 
 public class PlayerMovementSystem extends AbstractAppState {
 
@@ -22,15 +23,14 @@ public class PlayerMovementSystem extends AbstractAppState {
 
     @Override
     public void initialize(AppStateManager stateManager, Application app) {
-        EntityId playerId = EntityFactory.getPlayerEntityId();
+        var entityState = stateManager.getState(EntityState.class);
 
-        this.player = EntityFactory.entityData.getEntity(
-                playerId,
+        this.player = entityState.getEntityOrThrow(
+                PlayerComponent.class,
+                NodeComponent.class,
                 MoveComponent.class,
                 VelocityComponent.class,
-                CharacterControlComponent.class,
-                PositionComponent.class
-        );
+                PositionComponent.class);
 
         this.camera = app.getCamera();
 
@@ -42,12 +42,14 @@ public class PlayerMovementSystem extends AbstractAppState {
     @Override
     public void update(float tpf) {
         MoveComponent moveComponent = player.get(MoveComponent.class);
-        CharacterControlComponent controlComponent = player.get(CharacterControlComponent.class);
+        NodeComponent nodeComponent = player.get(NodeComponent.class);
         VelocityComponent velocityComponent = player.get(VelocityComponent.class);
         PositionComponent positionComponent = player.get(PositionComponent.class);
 
         Vector3f camDir = camera.getDirection().clone().multLocal(0.3f);
         Vector3f camLeft = camera.getLeft().clone().multLocal(0.3f);
+
+        CharacterControl control = nodeComponent.entity.getControl(CharacterControl.class);
 
         walkDirection.set(0, 0, 0);
 
@@ -69,9 +71,9 @@ public class PlayerMovementSystem extends AbstractAppState {
 
         walkDirection.multLocal(velocityComponent.velocity);
 
-        controlComponent.control.setWalkDirection(walkDirection);
-        camera.setLocation(controlComponent.control.getPhysicsLocation());
+        control.setWalkDirection(walkDirection);
+        camera.setLocation(control.getPhysicsLocation());
 
-        positionComponent.position = controlComponent.control.getPhysicsLocation();
+        positionComponent.position = control.getPhysicsLocation();
     }
 }
