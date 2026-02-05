@@ -1,5 +1,6 @@
 package org.jme.zombies;
 
+import com.jme3.network.ConnectionListener;
 import com.jme3.network.HostedConnection;
 import com.jme3.network.Network;
 import com.jme3.network.Server;
@@ -32,14 +33,16 @@ public class ServerApplication {
         app.addService(new EntityDataHostedService(CHANNEL_DEFAULT_RELIABLE, app.entityData));
         app.registerClasses();
 
+        app.server.addConnectionListener(new DefaultConnectionListener());
         app.server.start();
+
         System.out.println("Server started.  Press Ctrl-C to stop.");
         app.run();
     }
 
     private void run() {
         try {
-            while (true) {
+            while (server.isRunning()) {
                 gameLogic.update();
                 server.getServices().getService(EntityDataHostedService.class).sendUpdates();
                 Thread.sleep(100); // 10 times a second
@@ -63,5 +66,28 @@ public class ServerApplication {
     private void registerClasses() {
         Serializer.registerClass(PositionComponent.class, new FieldSerializer());
         Serializer.registerClass(NodeComponent.class, new FieldSerializer());
+    }
+
+    private static class DefaultConnectionListener implements ConnectionListener {
+
+        public DefaultConnectionListener() {
+            System.out.println("Default connection listener successfully register");
+        }
+
+        @Override
+        public void connectionAdded(Server server, HostedConnection conn) {
+            System.out.println(
+                    "Connected register for server name: " + server.getGameName()
+                            + ". Connection IP: " + conn.getAddress()
+            );
+        }
+
+        @Override
+        public void connectionRemoved(Server server, HostedConnection conn) {
+            System.out.println(
+                    "Removed connection for server name: " + server.getGameName()
+                            + ". Disconnected IP: " + conn.getAddress()
+            );
+        }
     }
 }
