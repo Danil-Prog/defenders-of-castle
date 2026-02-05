@@ -9,7 +9,7 @@ import com.jme3.scene.Node;
 import com.simsilica.es.Entity;
 import com.simsilica.es.EntityData;
 import com.simsilica.es.EntityId;
-import com.simsilica.es.base.DefaultEntityData;
+import java.util.HashMap;
 import org.jme.zombies.GameApplication;
 import org.jme.zombies.game.entity.EntityType;
 import org.jme.zombies.game.factory.entityfactory.EntityCreator;
@@ -17,15 +17,15 @@ import org.jme.zombies.game.factory.entityfactory.impl.BulletCreator;
 import org.jme.zombies.game.factory.entityfactory.impl.EnemyCreator;
 import org.jme.zombies.game.factory.entityfactory.impl.ItemCreator;
 import org.jme.zombies.game.factory.entityfactory.impl.PlayerCreator;
+import org.jme.zombies.game.server.NetworkedEntityData;
 import org.jme.zombies.game.states.NavigationMeshAppState;
 import org.jme.zombies.game.states.WorldAppState;
 import org.recast4j.detour.NavMesh;
 
-import java.util.HashMap;
-
 public class EntityFactory {
 
-    private final EntityData entityData = new DefaultEntityData();
+    private NetworkedEntityData networkedEntityData;
+    private EntityData entityData;
 
     private final HashMap<EntityType, EntityCreator<EntityType>> entityCreators = new HashMap<>();
 
@@ -34,6 +34,10 @@ public class EntityFactory {
 
         var worldAppState = stateManager.getState(WorldAppState.class);
         var navigationMeshAppState = stateManager.getState(NavigationMeshAppState.class);
+
+        this.networkedEntityData = new NetworkedEntityData("default-server", 1, "localhost", 9942);
+        this.entityData = networkedEntityData.getEntityData();
+
 
         Node worldNode = worldAppState.getWorldNode();
         AssetManager assetManager = application.getAssetManager();
@@ -72,6 +76,10 @@ public class EntityFactory {
 
     public EntityData getEntityData() {
         return entityData;
+    }
+
+    public NetworkedEntityData getNetworkedEntityData() {
+        return networkedEntityData;
     }
 
     public boolean removeComponent(EntityId entityId, Class type) {

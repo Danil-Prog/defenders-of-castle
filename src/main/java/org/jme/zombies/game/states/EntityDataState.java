@@ -1,18 +1,19 @@
 package org.jme.zombies.game.states;
 
+import com.jme3.app.Application;
 import com.jme3.app.state.AbstractAppState;
+import com.jme3.app.state.AppStateManager;
 import com.simsilica.es.EntityData;
-import com.simsilica.es.base.DefaultEntityData;
 
 public class EntityDataState extends AbstractAppState {
     private EntityData entityData;
 
-    public EntityDataState() {
-        this(new DefaultEntityData());
-    }
+    @Override
+    public void initialize(AppStateManager stateManager, Application app) {
+        super.initialize(stateManager, app);
 
-    public EntityDataState(EntityData ed) {
-        this.entityData = ed;
+        var entityState = stateManager.getState(EntityState.class);
+        entityData = entityState.getEntityData();
     }
 
     public EntityData getEntityData() {

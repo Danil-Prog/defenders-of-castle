@@ -8,7 +8,6 @@ import com.jme3.system.AppSettings;
 import org.jme.zombies.game.listeners.BulletCollisionListener;
 import org.jme.zombies.game.listeners.InputListener;
 import org.jme.zombies.game.listeners.ShootListener;
-import org.jme.zombies.game.server.NetworkedEntityData;
 import org.jme.zombies.game.states.EntityDataState;
 import org.jme.zombies.game.states.EntityState;
 import org.jme.zombies.game.states.NavigationMeshAppState;
@@ -33,8 +32,8 @@ public class GameApplication extends SimpleApplication {
 
         AppSettings settings = new AppSettings(true);
         settings.setTitle("Defenders of Castle");
-        settings.setFullscreen(true);
-        settings.setWindowSize(1600, 900);
+        settings.setFullscreen(false);
+        settings.setWindowSize(100, 100);
 
         game.setSettings(settings);
         game.start();
@@ -62,7 +61,7 @@ public class GameApplication extends SimpleApplication {
         stateManager.attach(new DetachingSystem());
         stateManager.attach(new HealthBarSystem());
         stateManager.attach(new RenderAppState());
-        stateManager.attach(new EntityDataState(new NetworkedEntityData("default-server", 1, "localhost", 9942).getEntityData()));
+        stateManager.attach(new EntityDataState());
 
         var ballCollisionListener = new BulletCollisionListener(this);
 

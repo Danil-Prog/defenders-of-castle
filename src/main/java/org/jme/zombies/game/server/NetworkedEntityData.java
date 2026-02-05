@@ -13,31 +13,23 @@ import java.util.logging.Logger;
 
 public class NetworkedEntityData {
 
-    private EntityData ed;
+    private EntityData entityData;
 
     public NetworkedEntityData(String name, Integer version, String host, Integer port) {
         Client client;
         try {
             client = Network.connectToServer(name, version, host, port, port);
             client.getServices().addService(new EntityDataClientService(MessageConnection.CHANNEL_DEFAULT_RELIABLE));
-            this.ed = client.getServices().getService(EntityDataClientService.class).getEntityData();
+            this.entityData = client.getServices().getService(EntityDataClientService.class).getEntityData();
             final CountDownLatch startedSignal = new CountDownLatch(1);
-            client.addClientStateListener(new ClientStateListener() {
-                @Override
-                public void clientConnected(Client c) {
-                    startedSignal.countDown();
-                }
-
-                @Override
-                public void clientDisconnected(Client c, ClientStateListener.DisconnectInfo info) {
-                    System.out.println("Client disconnected.");
-                }
-            });
+            client.addClientStateListener(new DefaultClientListener(startedSignal));
             client.start();
 
             // Wait for the client to start
             System.out.println("Waiting for connection setup.");
+
             startedSignal.await();
+
             System.out.println("Connected.");
             System.out.println("Press Ctrl-C to stop.");
         } catch (IOException | InterruptedException ex) {
@@ -46,6 +38,20 @@ public class NetworkedEntityData {
     }
 
     public EntityData getEntityData() {
-        return ed;
+        return entityData;
+    }
+
+    private record DefaultClientListener(CountDownLatch startedSignal) implements ClientStateListener {
+
+        @Override
+        public void clientConnected(Client c) {
+            System.out.println("Connected to server with game name: " + c.getGameName());
+            startedSignal.countDown();
+        }
+
+        @Override
+        public void clientDisconnected(Client c, DisconnectInfo info) {
+            System.out.println("Client disconnected. Reason: " + info.reason);
+        }
     }
 }
